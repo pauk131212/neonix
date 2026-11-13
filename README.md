@@ -11,7 +11,7 @@
 Образ лежит в GitHub Releases (файл больше 2 ГБ, поэтому порезан на части):
 
 ```
-https://github.com/ВАШ_ЛОГИН/neonix/releases/latest
+https://github.com/pauk131212/neonix/releases/latest
 ```
 
 Собрать части обратно и проверить:
