@@ -1,0 +1,13 @@
+PRETTY_NAME="Neonix 1.0"
+NAME="Neonix"
+VERSION_ID="1.0"
+VERSION="1.0 (Noble)"
+VERSION_CODENAME=noble
+ID=neonix
+ID_LIKE=ubuntu
+HOME_URL="https://example.org/"
+SUPPORT_URL="https://example.org/support"
+BUG_REPORT_URL="https://example.org/bugs"
+PRIVACY_POLICY_URL="https://example.org/privacy"
+UBUNTU_CODENAME=noble
+LOGO=neonix-logo

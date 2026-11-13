@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Neonix Session
+Comment=Apply the Neonix wallpaper and dark theme
+Exec=/usr/local/bin/neonix-session
+Terminal=false
+NoDisplay=true
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true

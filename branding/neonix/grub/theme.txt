@@ -1,0 +1,33 @@
+# Neonix GRUB theme
+title-text: "NEONIX"
+title-font: "DejaVu Sans Bold 24"
+title-color: "#00E5FF"
+desktop-image: "background.png"
+desktop-color: "#05070A"
+terminal-font: "DejaVu Sans Mono 14"
+terminal-box: "terminal_box_*.png"
+
++ boot_menu {
+    left = 20%
+    top = 38%
+    width = 60%
+    height = 45%
+    item_font = "DejaVu Sans Mono 14"
+    item_color = "#7FE9FF"
+    selected_item_color = "#39FF88"
+    item_height = 28
+    item_padding = 8
+    item_spacing = 4
+    icon_width = 0
+    icon_height = 0
+}
+
++ label {
+    top = 88%
+    left = 0
+    width = 100%
+    align = "center"
+    color = "#FF2E88"
+    font = "DejaVu Sans Mono 12"
+    text = "CODE // NEON // CONTROL"
+}

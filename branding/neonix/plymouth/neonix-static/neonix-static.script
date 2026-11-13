@@ -1,0 +1,64 @@
+# Neonix static fallback theme: code background + logo + progress + blinking cursor.
+
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+
+bg = Image("background.png");
+bg.SetX(0);
+bg.SetY(0);
+bg.SetWidth(screen_w);
+bg.SetHeight(screen_h);
+bg.SetZ(-100);
+
+logo_w = screen_w * 0.30;
+logo_h = logo_w * 260 / 900;
+logo = Image("logo.png");
+logo.SetWidth(logo_w);
+logo.SetHeight(logo_h);
+logo.SetX((screen_w - logo_w) / 2);
+logo.SetY(screen_h * 0.58);
+logo.SetZ(10);
+
+bar_w = screen_w * 0.22;
+bar_x = (screen_w - bar_w) / 2;
+bar_y = screen_h * 0.82;
+
+track = Image("box_off.png");
+track.SetX(bar_x);
+track.SetY(bar_y);
+track.SetWidth(bar_w);
+track.SetHeight(3);
+track.SetZ(5);
+
+fill = Image("box_on.png");
+fill.SetX(bar_x);
+fill.SetY(bar_y);
+fill.SetWidth(1);
+fill.SetHeight(3);
+fill.SetZ(6);
+
+cursor = Image("cursor.png");
+cursor.SetX(bar_x + bar_w + 12);
+cursor.SetY(bar_y - 8);
+cursor.SetWidth(8);
+cursor.SetHeight(16);
+cursor.SetZ(7);
+
+tick = 0;
+
+fun refresh_cb()
+{
+  tick = tick + 1;
+  if (tick >= 40) { tick = 0; }
+  if (tick < 20) { cursor.SetOpacity(1); } else { cursor.SetOpacity(0); }
+}
+
+fun progress_cb(duration, progress)
+{
+  w = bar_w * progress;
+  if (w < 1) { w = 1; }
+  fill.SetWidth(w);
+}
+
+Plymouth.SetRefreshFunction(refresh_cb);
+Plymouth.SetBootProgressFunction(progress_cb);

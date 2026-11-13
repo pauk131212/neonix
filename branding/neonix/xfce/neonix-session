@@ -1,0 +1,70 @@
+#!/bin/sh
+# Neonix session defaults: dark theme, wallpaper, panel.
+# Runs at XFCE login from /etc/xdg/autostart/neonix-session.desktop.
+
+IMG=/usr/share/backgrounds/neonix/wallpaper.png
+
+# Wait until xfconfd answers.
+i=0
+while [ "$i" -lt 30 ]; do
+    if xfconf-query -c xfce4-desktop -l >/dev/null 2>&1; then
+        break
+    fi
+    sleep 0.5
+    i=$((i + 1))
+done
+sleep 2
+
+# GTK theme and icons.
+xfconf-query -c xsettings -p /Net/ThemeName -s Adwaita-dark 2>/dev/null
+xfconf-query -c xsettings -p /Net/IconThemeName -s Adwaita 2>/dev/null
+
+# Window manager theme.
+xfconf-query -c xfwm4 -p /general/theme -s Daloa 2>/dev/null
+
+# Panels take their background from the GTK theme.
+xfconf-query -c xfce4-panel -p /panels/panel-1/background-style -n -t int -s 0 2>/dev/null
+xfconf-query -c xfce4-panel -p /panels/panel-2/background-style -n -t int -s 0 2>/dev/null
+
+# Update every existing backdrop property.
+for p in $(xfconf-query -c xfce4-desktop -l 2>/dev/null); do
+    case "$p" in
+        /backdrop/*/last-image)
+            xfconf-query -c xfce4-desktop -p "$p" -s "$IMG" 2>/dev/null
+            ;;
+        /backdrop/*/image-style)
+            xfconf-query -c xfce4-desktop -p "$p" -s 5 2>/dev/null
+            ;;
+    esac
+done
+
+# Create backdrop properties for every connected output and workspace.
+for out in $(xrandr --query 2>/dev/null | sed -n 's/^\([^ ]*\) connected.*/\1/p'); do
+    for w in 0 1 2 3; do
+        xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$out/workspace$w/last-image" \
+            -n -t string -s "$IMG" 2>/dev/null
+        xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$out/workspace$w/image-style" \
+            -n -t int -s 5 2>/dev/null
+    done
+done
+
+# The live session's installer icon is dropped into ~/Desktop by the
+# ubuntu-desktop-bootstrap snap at boot. Relabel it for Neonix.
+ICON="$HOME/Desktop/ubuntu-desktop-bootstrap_ubuntu-desktop-bootstrap.desktop"
+i=0
+while [ ! -f "$ICON" ] && [ "$i" -lt 20 ]; do
+    sleep 1
+    i=$((i + 1))
+done
+if [ -f "$ICON" ]; then
+    sed -i -e 's/^Name=.*/Name=Install Neonix/' \
+           -e 's/^Comment=.*/Comment=Install Neonix to your hard disk/' "$ICON"
+    if grep -q '^Name\[ru\]=' "$ICON"; then
+        sed -i 's/^Name\[ru\]=.*/Name[ru]=Установить Neonix/' "$ICON"
+    else
+        sed -i '/^Name=/a Name[ru]=Установить Neonix' "$ICON"
+    fi
+fi
+
+# Repaint the desktop so the wallpaper and relabelled icon show up.
+xfdesktop --reload 2>/dev/null
