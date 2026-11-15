@@ -91,6 +91,21 @@ Plymouth в него не попадает — splash остаётся родн�
 поставить alternative `default.plymouth` на неё и выполнить
 `update-initramfs -u` — при загрузке builder'а будет видна та же заставка.
 
+Запасная тема `neonix-static` тоже переписана на этот API: раньше она
+использовала `SetWidth`/`SetHeight` и при загрузке давала чёрный экран.
+
+### Ещё одни грабли: BOM
+
+Файлы `.plymouth` и `.script` должны быть **UTF-8 без BOM**. PowerShell 5.1
+в `Set-Content -Encoding UTF8` пишет BOM (`EF BB BF`), и Plymouth не разбирает
+ни первую секцию `.plymouth`, ни первую строку скрипта — тема молча
+подменяется стандартной (Ubuntu с фиолетовым фоном). Лечится так:
+
+```powershell
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($path, $text, $utf8)
+```
+
 3. **Сжатие root** (12–15 минут):
 
    ```bash

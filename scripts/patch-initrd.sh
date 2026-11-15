@@ -26,6 +26,7 @@ tail -c +$((OFFSET + 1)) "$F" | zstd -d -c | cpio -idm --quiet
 echo "extracted: $(find . | wc -l) entries"
 
 echo "apply theme"
+rm -rf "$R/usr/share/plymouth/themes/neonix"
 install -d "$R/usr/share/plymouth/themes/neonix"
 cp -a "$P/custom-root/usr/share/plymouth/themes/neonix/." "$R/usr/share/plymouth/themes/neonix/"
 cp "$P/custom-root/usr/lib/x86_64-linux-gnu/plymouth/script.so" "$R/usr/lib/x86_64-linux-gnu/plymouth/script.so"

@@ -1,48 +1,51 @@
-# Neonix static fallback theme: code background + logo + progress + blinking cursor.
+# Neonix static fallback theme: background + logo + progress + blinking cursor.
+#
+# Plymouth 24.004.60 API: Image.Scale() returns a NEW image, images are placed
+# with Sprite objects. There is no SetWidth/SetHeight (calling them silently
+# kills the script and leaves a black screen).
 
 screen_w = Window.GetWidth();
 screen_h = Window.GetHeight();
 
-bg = Image("background.png");
-bg.SetX(0);
-bg.SetY(0);
-bg.SetWidth(screen_w);
-bg.SetHeight(screen_h);
-bg.SetZ(-100);
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
 
+bg_img = Image("background.png");
+if (bg_img)
+{
+  bg = Sprite(bg_img.Scale(screen_w, screen_h));
+  bg.SetX(0);
+  bg.SetY(0);
+  bg.SetZ(-100);
+}
+
+logo_img = Image("logo.png");
 logo_w = screen_w * 0.30;
-logo_h = logo_w * 260 / 900;
-logo = Image("logo.png");
-logo.SetWidth(logo_w);
-logo.SetHeight(logo_h);
+logo_h = logo_img.GetHeight() * (logo_w / logo_img.GetWidth());
+logo = Sprite(logo_img.Scale(logo_w, logo_h));
 logo.SetX((screen_w - logo_w) / 2);
-logo.SetY(screen_h * 0.58);
+logo.SetY(screen_h * 0.40);
 logo.SetZ(10);
 
 bar_w = screen_w * 0.22;
 bar_x = (screen_w - bar_w) / 2;
 bar_y = screen_h * 0.82;
 
-track = Image("box_off.png");
+track = Sprite(Image("box_off.png").Scale(bar_w, 3));
 track.SetX(bar_x);
 track.SetY(bar_y);
-track.SetWidth(bar_w);
-track.SetHeight(3);
 track.SetZ(5);
 
-fill = Image("box_on.png");
+box_on_img = Image("box_on.png");
+fill = Sprite(box_on_img.Scale(1, 3));
 fill.SetX(bar_x);
 fill.SetY(bar_y);
-fill.SetWidth(1);
-fill.SetHeight(3);
 fill.SetZ(6);
 
-cursor = Image("cursor.png");
-cursor.SetX(bar_x + bar_w + 12);
-cursor.SetY(bar_y - 8);
-cursor.SetWidth(8);
-cursor.SetHeight(16);
-cursor.SetZ(7);
+cur = Sprite(Image("cursor.png").Scale(7, 18));
+cur.SetX(bar_x + bar_w + 12);
+cur.SetY(bar_y - 8);
+cur.SetZ(7);
 
 tick = 0;
 
@@ -50,14 +53,14 @@ fun refresh_cb()
 {
   tick = tick + 1;
   if (tick >= 40) { tick = 0; }
-  if (tick < 20) { cursor.SetOpacity(1); } else { cursor.SetOpacity(0); }
+  if (tick < 20) { cur.SetOpacity(1); } else { cur.SetOpacity(0); }
 }
 
 fun progress_cb(duration, progress)
 {
   w = bar_w * progress;
   if (w < 1) { w = 1; }
-  fill.SetWidth(w);
+  fill.SetImage(box_on_img.Scale(w, 3));
 }
 
 Plymouth.SetRefreshFunction(refresh_cb);
