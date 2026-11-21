@@ -1,0 +1,29 @@
+[Unit]
+Description=Neonix MONO graphical session (tty1)
+After=systemd-user-sessions.service plymouth-quit-wait.service dbus.service
+Wants=dbus.service
+Conflicts=getty@tty1.service
+Before=getty@tty1.service
+
+[Service]
+Type=simple
+User=ubuntu
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=no
+StandardInput=tty
+StandardOutput=journal+console
+StandardError=journal+console
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_CURRENT_DESKTOP=sway
+Environment=HOME=/home/ubuntu
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/local/bin/neonix-session-start
+Restart=no
+UtmpIdentifier=tty1
+UtmpMode=user
+
+[Install]
+WantedBy=graphical.target

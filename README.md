@@ -1,127 +1,131 @@
-# Neonix — кибер-ремикс Ubuntu 24.04 на XFCE
+# Neonix — монохромный ремикс Ubuntu 24.04
 
-Свой дистрибутив на базе Ubuntu 24.04 LTS, собранный в VirtualBox через **Cubic**.
-Тёмная кибер-эстетика, «код» на экране загрузки, свой логотип.
-Слоган: **CODE // NEON // CONTROL**.
+Live-система на базе Ubuntu 24.04: чёрно-белая заставка с настоящим логом загрузки, минималистичный рабочий стол на **Hyprland** (реальное железо) / **sway** (ВМ), почти пустые обои с логотипом.
 
-Артефакты брендинга: `branding/neonix/` (Plymouth, GRUB, LightDM, XFCE, скрипт установки).
+![Загрузка](docs/screenshots/boot.png)
 
-## Скачать готовый ISO
+## Что нового в 1.1
 
-Образ лежит в GitHub Releases (файл больше 2 ГБ, поэтому порезан на части):
+- **Заставка переписана**: 10 строк реального лога (ядро, systemd, команды с приглашением `neonix:~#`), посимвольная печать ~6–8 с, затем логотип `NEONIX` со свечением и периодическим «двоением», полоса прогресса доезжает до 100%.
+- **Рабочий стол** переехал с XFCE на **sway + waybar** (Hyprland на железе): кнопка `▚ apps`, рабочие столы, cpu/ram/eth/часы.
+- **Обои** рисуются заново (текст в финальном размере — без мыла), плюс смена обоев на ходу.
+- Автозапуск сессии через systemd (`neonix-session.service`), исправлено отсутствие пользователя `ubuntu` в live-server ISO.
+
+## Скриншоты
+
+| Загрузка: лог → двоение → полоса | Рабочий стол |
+|---|---|
+| ![](docs/screenshots/boot.png) | ![](docs/screenshots/desktop.png) |
+
+Обои вблизи, кроп 1:1:
+
+![](docs/screenshots/wallpaper-closeup.png)
+
+## Скачать
+
+Релизы: <https://github.com/pauk131212/neonix/releases>
+
+**Neonix 1.1** — `neonix-personal-1.1-amd64.iso`, 5 518 796 800 байт, SHA-256:
 
 ```
-https://github.com/pauk131212/neonix/releases/latest
+93b2174a1105b6b70718d7c819cf41e1c9eaab08f35c36b513ad21efbfbe6fb5
 ```
 
-Собрать части обратно и проверить:
+GitHub не принимает файлы больше 2 ГиБ, поэтому образ порезан на три части. Скачать все три и склеить:
 
 ```powershell
 # Windows
-copy /b neonix-1.0-amd64.iso.part01+neonix-1.0-amd64.iso.part02+neonix-1.0-amd64.iso.part03+neonix-1.0-amd64.iso.part04 neonix-1.0-amd64.iso
-Get-FileHash .\neonix-1.0-amd64.iso -Algorithm SHA256
+copy /b neonix-1.1-amd64.iso.part1+neonix-1.1-amd64.iso.part2+neonix-1.1-amd64.iso.part3 neonix-personal-1.1-amd64.iso
+Get-FileHash .\neonix-personal-1.1-amd64.iso -Algorithm SHA256
 ```
 
 ```bash
-# Linux
-cat neonix-1.0-amd64.iso.part* > neonix-1.0-amd64.iso
-sha256sum -c SHA256SUMS.txt
+# Linux / macOS
+cat neonix-1.1-amd64.iso.part* > neonix-personal-1.1-amd64.iso
+sha256sum neonix-personal-1.1-amd64.iso
 ```
 
-Хеш текущей сборки: `1971d28e537f72fbda5b20d4a95425b7464be8554562d395c3eda0badf077258`.
+Готовые скрипты склейки: `tools/join.ps1` и `tools/join.sh` (кладутся рядом с частями).
 
-Neonix — неофициальный ремикс Ubuntu, не связан с Canonical. Подробности — в `LICENSE`.
+Запись на флешку (от 8 ГБ): Rufus/balenaEtcher в режиме «DD», либо
+`sudo dd if=neonix-personal-1.1-amd64.iso of=/dev/sdX bs=8M status=progress oflag=sync`.
+
+Загрузка проверена в BIOS/Legacy (VirtualBox); UEFI отдельно не тестировалась.
+
+## Загрузка и вход
+
+1. Заставка → рабочий стол (в ВМ ~70–90 секунд).
+2. Вход автоматический: пользователь `ubuntu`, **пароль пустой**.
+3. Если графическая сессия не поднялась — вход через ttyS0 тем же пользователем.
+4. Система **live**: изменения не сохраняются после перезагрузки.
+
+## Управление
+
+`Win` — клавиша Windows.
+
+| Клавиши | Действие |
+|---|---|
+| `Win+Enter` | терминал (foot) |
+| `Win+D`, `Win+Tab` | меню приложений (fuzzel) |
+| `Win+E` | файлы (thunar) |
+| `Win+Q` | закрыть окно |
+| `Win+Shift+W` | выбрать обои из `~/Pictures` |
+| `Win+Shift+B` | вернуть стандартные обои |
+| `Win+1..6` | рабочие столы |
+| `Win+F` | полный экран |
+| `Win+Shift+E` | выйти из сессии |
+
+```bash
+neonix-wallpaper <файл>   # свои обои (запомнится до перезагрузки)
+neonix-wallpaper --pick   # выбрать из ~/Pictures и системных
+neonix-wallpaper --default
+```
 
 ## Проверка образа в VirtualBox
 
-Образ проверялся в VirtualBox: 4 ГБ RAM, 2 CPU. Графический контроллер — **VMSVGA**.
-С `vboxsvga` гость иногда встаёт на смене видеорежима (в консоли видно
-`watchdog: BUG: soft lockup`), и загрузка выглядит как чёрный экран.
-Загрузка живого образа идёт 2–4 минуты — это нормально, не зависание.
+Образ проверялся в VirtualBox: 2 ГБ RAM, 1 CPU, 1280x800, контроллер **VMSVGA**.
+С `vboxsvga` гость иногда встаёт на смене видеорежима (`watchdog: BUG: soft lockup`) — выглядит как чёрный экран.
 
+## Сборка
+
+База — Ubuntu 24.04 live-server, сборка через [Cubic](https://github.com/PJ-Singh-001/Cubic): в chroot копируются тема plymouth (и внутрь initrd), конфиги сессии, юнит `neonix-session.service` и пользователь `ubuntu`.
+
+```bash
+SRC=/media/sf_work/neonix bash scripts/13-run-all.sh
+```
+
+- `scripts/08-fix-user.sh` — пользователь `ubuntu` (в live-server ISO его нет — главная причина чёрного экрана).
+- `scripts/09-apply-theme.sh` — тема plymouth в chroot + патч initrd.
+- `scripts/10-apply-tweaks.sh` — sway/waybar/скрипт сессии/обои/юнит.
+- `scripts/11-patch-initrd.sh` — DRM-модули и тема внутрь initrd (смещение zstd-потока в `OFFSET`).
+- `scripts/12-build-final.sh` — mksquashfs + xorriso.
+- `scripts/13-run-all.sh` — всё подряд.
+
+Пути по умолчанию (`/media/sf_work`, `/home/builder/cubic-project`) — из моей среды сборки (VirtualBox + общая папка); переопределяются переменными `SRC` и `P`.
+
+Генераторы графики (PowerShell, Windows, шрифт Consolas):
+
+- `branding/neonix/generators/make-splash.ps1` — строки лога, маска печати, логотип, полоса, глитч → `branding/neonix/plymouth/neonix/assets/*` и `neonix.script`.
+- `branding/neonix/generators/make-logo2.ps1` — резкий `logo.png` + свечение `logo_glow.png`.
+- `branding/neonix/generators/make-wallpaper.ps1` — обои (текст в финальном размере).
+- `branding/neonix/generators/make-glow.ps1` — вспомогательное размытие.
 
 ## Что где лежит
 
 ```
-mydistro/                  <- этот проект (скрипты, документы, брендинг)
-  scripts/
-    01-download-iso.ps1    скачать ISO Ubuntu (с докачкой)
-    02-verify-iso.ps1      проверить SHA256
-    03-create-vm.ps1       создать ВМ для сборки
-    04-start-vm.ps1        запустить ВМ
-  docs/
-    detailed-plan.md       полный план от ВМ до ISO (этот документ — основа)
-    plan.md                краткий план по этапам
-    remix-checklist.md     пошаговый чек-лист внутри Cubic
-  branding/
-    os-release.template    шаблон /etc/os-release
-    packages-xfce.txt      набор пакетов XFCE
-    neonix/                брендинг: Plymouth, GRUB, LightDM, XFCE, ассеты
+session/                              sway/waybar/Hyprland, запуск сессии, смена обоев
+branding/neonix/plymouth/neonix/      тема plymouth (скрипт + assets)
+branding/neonix/generators/           генераторы графики (PowerShell)
+branding/neonix/assets/               логотип, обои, брендинг 1.0
+branding/neonix/{grub,lightdm,xfce}/  брендинг 1.0 (XFCE)
+scripts/                              сборка в chroot и упаковка ISO
+docs/                                 план, чек-лист, скриншоты
+tools/                                склейка частей релиза
 ```
 
-Артефакты (вне проекта, путь без кириллицы — так надёжнее для VirtualBox):
+## История
 
-```
-C:\distro-work\
-  iso\      исходный ISO Ubuntu
-  vm\       виртуальная машина сборщика
-  build\    общая папка хост <-> гость (сюда кладём брендинг, оттуда забираем результат)
-  out\      готовые ISO
-```
+- **1.0** — XFCE, «код» на загрузке, светлая кибер-эстетика. Релиз `v1.0`.
+- **1.1** — монохром, новая заставка, Hyprland/sway, смена обоев.
 
-## Быстрый старт
-
-```powershell
-cd "C:\Users\Дух из чайника\Documents\Проект по умолчанию\mydistro"
-powershell -ExecutionPolicy Bypass -File .\scripts\01-download-iso.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\02-verify-iso.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\03-create-vm.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\04-start-vm.ps1
-```
-
-Дальше — установка Ubuntu в ВМ и работа по `docs/remix-checklist.md`.
-
-## Порядок работы
-
-1. **Подготовка** — ISO скачан, ВМ создана. ✅ (скрипты)
-2. **Установка Ubuntu** в ВМ (обычная установка на весь диск).
-3. **Cubic** — ставим, открываем, выбираем ISO, попадаем в chroot.
-4. **Кастомизация** — XFCE, софт, брендинг, очистка.
-5. **Сборка ISO** — Cubic генерирует образ.
-6. **Тест** — загрузка нового ISO в отдельной ВМ.
-7. **Итерации** — правим, пересобираем.
-
-## Важные правила
-
-- Проект Cubic держите **на ext4 внутри ВМ** (`~/cubic-project`), не на общей папке — иначе сборка сломается.
-- ISO и результат можно гонять через общую папку `/media/sf_work`.
-- Не используйте товарные знаки Ubuntu в названии и оформлении.
-- Каждую сборку проверяйте в чистой ВМ, а не только в сборщике.
-
-## Публикация на GitHub
-
-Всё готово к публикации: `.gitignore` не пускает в репозиторий ISO и образы ВМ,
-`LICENSE` — MIT для наших файлов (пакеты Ubuntu остаются под своими лицензиями).
-
-1. Исходники (скрипты, брендинг, документация) — один раз:
-
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\scripts\publish-repo.ps1
-   ```
-
-   Скрипт поставит Git и GitHub CLI (если их нет), попросит войти в аккаунт,
-   создаст репозиторий `neonix` и запушит `main`.
-
-2. Готовый ISO — в Releases (файл больше 2 ГБ, поэтому режется на части):
-
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\scripts\publish-iso.ps1
-   ```
-
-   Создаст релиз `v1.0`, зальёт части ISO и `SHA256SUMS.txt`.
-   Загрузка 6.3 ГБ зависит от скорости интернета — может идти часами.
-
-Если GitHub-релизы кажутся неудобными для 6 ГБ, альтернатива —
-archive.org (умеет торренты) или Яндекс.Диск; тогда в README просто
-меняется ссылка на скачивание.
-
+Neonix — неофициальный ремикс Ubuntu, не связан с Canonical. Лицензия — MIT (`LICENSE`), пакеты Ubuntu остаются под своими лицензиями.

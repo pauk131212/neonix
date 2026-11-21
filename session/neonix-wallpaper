@@ -1,0 +1,61 @@
+#!/bin/sh
+# neonix-wallpaper — обои рабочего стола Neonix.
+#   neonix-wallpaper <файл>   поставить свою картинку (запомнится)
+#   neonix-wallpaper --pick   выбрать из ~/Pictures и /usr/share/backgrounds (fuzzel)
+#   neonix-wallpaper --default  вернуть стандартные обои Neonix
+#   neonix-wallpaper          применить сохранённые обои (вызывается при старте сессии)
+
+DEFAULT=/usr/share/backgrounds/neonix/wallpaper.png
+DIR="$HOME/.config/neonix"
+STATE="$DIR/wallpaper"
+
+mkdir -p "$DIR" 2>/dev/null || true
+
+apply() {
+    img="$1"
+    [ -f "$img" ] || { echo "neonix-wallpaper: нет файла: $img" >&2; return 1; }
+
+    i=0
+    while [ "$i" -lt 15 ]; do
+        if [ -n "$SWAYSOCK" ] && command -v swaymsg >/dev/null 2>&1; then
+            swaymsg output "*" bg "$img" fill >/dev/null 2>&1 && break
+        elif [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && command -v hyprctl >/dev/null 2>&1; then
+            hyprctl hyprpaper preload "$img" >/dev/null 2>&1
+            hyprctl hyprpaper wallpaper ",$img" >/dev/null 2>&1 && break
+        elif command -v xfconf-query >/dev/null 2>&1; then
+            for p in $(xfconf-query -c xfce4-desktop -l 2>/dev/null | grep last-image); do
+                xfconf-query -c xfce4-desktop -p "$p" -s "$img" >/dev/null 2>&1
+            done
+            break
+        fi
+        i=$((i + 1))
+        sleep 0.2
+    done
+
+    printf '%s\n' "$img" > "$STATE"
+}
+
+case "${1:-}" in
+    --pick|-p)
+        list=$(find "$HOME/Pictures" /usr/share/backgrounds -maxdepth 4 -type f \
+                 \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) \
+                 2>/dev/null | sort)
+        [ -n "$list" ] || { echo "neonix-wallpaper: картинок не найдено (положите в ~/Pictures)" >&2; exit 1; }
+        sel=$(printf '%s\n' "$list" | fuzzel --dmenu --prompt 'обои > ' --width 60)
+        [ -n "$sel" ] || exit 0
+        apply "$sel"
+        ;;
+    --default|-d)
+        apply "$DEFAULT"
+        ;;
+    '')
+        if [ -s "$STATE" ]; then
+            apply "$(cat "$STATE")"
+        else
+            apply "$DEFAULT"
+        fi
+        ;;
+    *)
+        apply "$1"
+        ;;
+esac

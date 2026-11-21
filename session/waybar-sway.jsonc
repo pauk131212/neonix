@@ -1,0 +1,31 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 0,
+  "modules-left": ["custom/launcher", "sway/workspaces"],
+  "modules-center": ["sway/window"],
+  "modules-right": ["cpu", "memory", "network", "clock"],
+  "custom/launcher": {
+    "format": "▚ apps",
+    "tooltip": "Приложения — клик или Super+D",
+    "on-click": "fuzzel"
+  },
+  "sway/workspaces": {
+    "format": "{name}",
+    "disable-scroll": true
+  },
+  "sway/window": {
+    "format": "{}",
+    "max-length": 60
+  },
+  "cpu": { "format": "cpu {usage}%", "interval": 3 },
+  "memory": { "format": "ram {percentage}%", "interval": 5 },
+  "network": {
+    "format-wifi": "wifi {essid}",
+    "format-ethernet": "eth",
+    "format-disconnected": "offline",
+    "interval": 5
+  },
+  "clock": { "format": "{:%d.%m %H:%M}", "interval": 10 }
+}

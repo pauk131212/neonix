@@ -1,0 +1,60 @@
+#!/bin/sh
+# Neonix MONO — запуск графической сессии.
+#   реальное железо : Hyprland  -> (при падении) sway(pixman) -> XFCE
+#   виртуальная ВМ  : sway(pixman) срaзу              -> XFCE
+# Вызывается из ~/.bash_profile при автологине на tty1.
+
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+    mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+    chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+fi
+
+log() {
+    printf 'neonix-session: %s\n' "$*" >&2
+    logger -t neonix-session -- "$*" 2>/dev/null || true
+    printf 'neonix-session: %s\n' "$*" >> /tmp/neonix-session.log 2>/dev/null
+}
+
+is_vm=0
+case "$(cat /sys/class/dmi/id/product_name 2>/dev/null)" in
+    *VirtualBox*|*VMware*|*Virtual\ Machine*|*KVM*|*QEMU*) is_vm=1 ;;
+esac
+case "$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null)" in
+    *VirtualBox*|*innotek*|*VMware*|*QEMU*) is_vm=1 ;;
+esac
+
+log "virtual machine: $is_vm"
+
+if [ -e /dev/dri/card0 ]; then
+    export XDG_SESSION_TYPE=wayland
+
+    if [ "$is_vm" -eq 0 ]; then
+        export XDG_CURRENT_DESKTOP=Hyprland
+        log "starting hyprland"
+        Hyprland 2>/tmp/neonix-hyprland.log
+        rc=$?
+        log "hyprland exited with code $rc"
+        if [ -s /tmp/neonix-hyprland.log ]; then
+            tail -40 /tmp/neonix-hyprland.log > /dev/console 2>/dev/null
+        fi
+        [ "$rc" -eq 0 ] && exit 0
+        sleep 1
+    fi
+
+    export XDG_CURRENT_DESKTOP=sway
+    export LIBSEAT_BACKEND=logind
+    log "starting sway (pixman renderer)"
+    WLR_RENDERER=pixman sway 2>/tmp/neonix-sway.log
+    rc=$?
+    log "sway exited with code $rc"
+    if [ -s /tmp/neonix-sway.log ]; then
+        tail -40 /tmp/neonix-sway.log > /dev/console 2>/dev/null
+    fi
+    [ "$rc" -eq 0 ] && exit 0
+else
+    log "no /dev/dri/card0"
+fi
+
+log "falling back to XFCE (X11)"
+exec startx /usr/bin/startxfce4 -- :0 vt1

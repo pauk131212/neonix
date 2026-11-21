@@ -1,66 +1,56 @@
-# Neonix animated boot theme (Plymouth script API)
-# Phase 1: falling code rain.
-# Phase 2: glitch logo fades in, tagline appears, cursor blinks, progress line grows.
-#
-# NOTE: plymouth's script engine has no Image.SetWidth/SetHeight. Scaling is done
-# with Image.Scale(w, h) which RETURNS a new image, and images must be placed on
-# screen through Sprite objects (SetX/SetY/SetZ/SetOpacity).
+# Neonix MONO вЂ” РїРµС‡Р°С‚Р°СЋС‰РёР№СЃСЏ Р»РѕРі Р·Р°РіСЂСѓР·РєРё, Р·Р°С‚РµРј РіР»РёС‚С‡-Р»РѕРіРѕС‚РёРї Рё РїСЂРѕРіСЂРµСЃСЃ-Р±Р°СЂ.
+# Plymouth 24.004.60 (script plugin). РќРёРєР°РєРёС… С‚Р°Р±Р»РёС†/С†РёРєР»РѕРІ вЂ” РІСЃС‘ СЂР°Р·РІС‘СЂРЅСѓС‚Рѕ.
 
 screen_w = Window.GetWidth();
 screen_h = Window.GetHeight();
 
-Window.SetBackgroundTopColor(0.008, 0.012, 0.020);
-Window.SetBackgroundBottomColor(0.004, 0.006, 0.010);
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
 
-bg_img = Image("bg.png");
-bg = Sprite(bg_img.Scale(screen_w, screen_h));
-bg.SetX(0);
-bg.SetY(0);
-bg.SetZ(-100);
+# РјР°СЃС€С‚Р°Р± РїРѕ РІС‹СЃРѕС‚Рµ СЌРєСЂР°РЅР° (РєР°Рє РєРѕРЅСЃРѕР»СЊРЅС‹Р№ С€СЂРёС„С‚), СЃ Р·Р°С‰РёС‚РѕР№ РїРѕ С€РёСЂРёРЅРµ
+k = screen_h / 1080;
+if (k > screen_w / 1300) { k = screen_w / 1300; }
 
-col_w = screen_w * 0.052;
-col_h = screen_h * 1.45;
-speed = screen_h / 120;
+x0 = 96 * k;
+y0 = 70 * k;
+dy = 30 * k;
+cw = 14.2949 * k;
 
-c1 = Sprite(Image("col_01.png").Scale(col_w, col_h));
-c1.SetX(screen_w * 0.05); c1.SetZ(1);
-c2 = Sprite(Image("col_02.png").Scale(col_w, col_h));
-c2.SetX(screen_w * 0.17); c2.SetZ(1);
-c3 = Sprite(Image("col_03.png").Scale(col_w, col_h));
-c3.SetX(screen_w * 0.29); c3.SetZ(1);
-c4 = Sprite(Image("col_04.png").Scale(col_w, col_h));
-c4.SetX(screen_w * 0.40); c4.SetZ(1);
-c5 = Sprite(Image("col_05.png").Scale(col_w, col_h));
-c5.SetX(screen_w * 0.52); c5.SetZ(1);
-c6 = Sprite(Image("col_06.png").Scale(col_w, col_h));
-c6.SetX(screen_w * 0.63); c6.SetZ(1);
-c7 = Sprite(Image("col_07.png").Scale(col_w, col_h));
-c7.SetX(screen_w * 0.75); c7.SetZ(1);
-c8 = Sprite(Image("col_08.png").Scale(col_w, col_h));
-c8.SetX(screen_w * 0.87); c8.SetZ(1);
+# ---------------- СЃС‚СЂРѕРєРё Р»РѕРіР°
+fun mkline(file, idx)
+{
+  img = Image(file);
+  s = Sprite(img.Scale(img.GetWidth() * k, img.GetHeight() * k));
+  s.SetX(x0);
+  s.SetY(y0 + idx * dy);
+  s.SetZ(10);
+  s.SetOpacity(0);
+  return s;
+}
+l0 = mkline("line_00.png", 0);
+l1 = mkline("line_01.png", 1);
+l2 = mkline("line_02.png", 2);
+l3 = mkline("line_03.png", 3);
+l4 = mkline("line_04.png", 4);
+l5 = mkline("line_05.png", 5);
+l6 = mkline("line_06.png", 6);
+l7 = mkline("line_07.png", 7);
+l8 = mkline("line_08.png", 8);
+l9 = mkline("line_09.png", 9);
+l10 = mkline("line_10.png", 10);
 
-y1 = 0 - col_h * 0.85;
-y2 = 0 - col_h * 0.20;
-y3 = 0 - col_h * 1.15;
-y4 = 0 - col_h * 0.55;
-y5 = 0 - col_h * 0.95;
-y6 = 0 - col_h * 0.10;
-y7 = 0 - col_h * 0.70;
-y8 = 0 - col_h * 1.25;
-
-c1.SetY(y1); c2.SetY(y2); c3.SetY(y3); c4.SetY(y4);
-c5.SetY(y5); c6.SetY(y6); c7.SetY(y7); c8.SetY(y8);
-
-logo_w = screen_w * 0.40;
-logo_h = logo_w * 260 / 900;
+# ---------------- Р»РѕРіРѕС‚РёРї (С„Р°Р·Р° 2)
+logo_w = screen_w * 0.34;
+logo_h = logo_w * 0.4104;
 logo_x = (screen_w - logo_w) / 2;
-logo_y = screen_h * 0.36;
+logo_y = screen_h * 0.30;
 
 logo = Sprite(Image("logo.png").Scale(logo_w, logo_h));
-logo.SetX(logo_x);
-logo.SetY(logo_y);
-logo.SetZ(20);
-logo.SetOpacity(0);
+logo.SetX(logo_x); logo.SetY(logo_y); logo.SetZ(20); logo.SetOpacity(0);
+
+# ровное свечение под логотипом
+glow = Sprite(Image("logo_glow.png").Scale(logo_w, logo_h));
+glow.SetX(logo_x); glow.SetY(logo_y); glow.SetZ(19); glow.SetOpacity(0);
 
 gl1 = Sprite(Image("logo_g1.png").Scale(logo_w, logo_h));
 gl1.SetX(logo_x); gl1.SetY(logo_y); gl1.SetZ(21); gl1.SetOpacity(0);
@@ -68,120 +58,224 @@ gl1.SetX(logo_x); gl1.SetY(logo_y); gl1.SetZ(21); gl1.SetOpacity(0);
 gl2 = Sprite(Image("logo_g2.png").Scale(logo_w, logo_h));
 gl2.SetX(logo_x); gl2.SetY(logo_y); gl2.SetZ(22); gl2.SetOpacity(0);
 
-tag_w = screen_w * 0.42;
-tag_h = tag_w * 90 / 1000;
-tag = Sprite(Image("tagline.png").Scale(tag_w, tag_h));
-tag.SetX((screen_w - tag_w) / 2);
-tag.SetY(screen_h * 0.62);
-tag.SetZ(20);
-tag.SetOpacity(0);
-
-cursor = Sprite(Image("cursor.png").Scale(screen_w * 0.010, screen_h * 0.030));
-cursor.SetX(screen_w * 0.5 + tag_w * 0.21);
-cursor.SetY(screen_h * 0.623);
-cursor.SetZ(21);
-cursor.SetOpacity(0);
-
-bar_w = screen_w * 0.24;
+# ---------------- РїСЂРѕРіСЂРµСЃСЃ-Р±Р°СЂ (РїРѕСЏРІР»СЏРµС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ Р»РѕРіРѕС‚РёРїРѕРј)
+bar_w = logo_w * 0.94;
 bar_x = (screen_w - bar_w) / 2;
-bar_y = screen_h * 0.82;
+bar_y = logo_y + logo_h + 40 * k;
 
-track = Sprite(Image("box_off.png").Scale(bar_w, 3));
-track.SetX(bar_x);
-track.SetY(bar_y);
-track.SetZ(5);
+track = Sprite(Image("box_off.png").Scale(bar_w, 3 * k));
+track.SetX(bar_x); track.SetY(bar_y); track.SetZ(5); track.SetOpacity(0);
 
 box_on_img = Image("box_on.png");
-fill = Sprite(box_on_img.Scale(1, 3));
-fill.SetX(bar_x);
-fill.SetY(bar_y);
-fill.SetZ(6);
+fill = Sprite(box_on_img.Scale(1, 3 * k));
+fill.SetX(bar_x); fill.SetY(bar_y); fill.SetZ(6); fill.SetOpacity(0);
 
+# ---------------- РјР°СЃРєР° В«РЅРµРґРѕРїРµС‡Р°С‚Р°РЅРЅРѕРіРѕВ» Рё РєСѓСЂСЃРѕСЂ
+mask = Sprite(Image("mask.png").Scale(screen_w, dy));
+mask.SetX(x0); mask.SetY(y0); mask.SetZ(15); mask.SetOpacity(1);
+
+cur = Sprite(Image("cursor.png").Scale(13 * k, 26 * k));
+cur.SetX(x0); cur.SetY(y0); cur.SetZ(16); cur.SetOpacity(0);
+
+# ---------------- СЃРѕСЃС‚РѕСЏРЅРёРµ
 tick = 0;
-glitch = 0;
+phase = 0;
+li = 0;
+ci = 0;
+per = 0;
+wait = 6;
+n = 0;
+r = 2;
+p = 8;
+started = 0;
+hold = 0;
 blink = 0;
+fadeop = 1;
+logo_op = 0;
+burst = 0;
+prog = 0;
+
+fun show_line()
+{  if (li == 0) { l0.SetOpacity(1); }
+  if (li == 1) { l1.SetOpacity(1); }
+  if (li == 2) { l2.SetOpacity(1); }
+  if (li == 3) { l3.SetOpacity(1); }
+  if (li == 4) { l4.SetOpacity(1); }
+  if (li == 5) { l5.SetOpacity(1); }
+  if (li == 6) { l6.SetOpacity(1); }
+  if (li == 7) { l7.SetOpacity(1); }
+  if (li == 8) { l8.SetOpacity(1); }
+  if (li == 9) { l9.SetOpacity(1); }
+  if (li == 10) { l10.SetOpacity(1); }
+}
+
+fun set_line_params()
+{
+  n = 0; r = 2; p = 6;  if (li == 0) { n = 58; r = 1; p = 7; }
+  if (li == 1) { n = 63; r = 1; p = 6; }
+  if (li == 2) { n = 54; r = 1; p = 7; }
+  if (li == 3) { n = 51; r = 1; p = 6; }
+  if (li == 4) { n = 37; r = 1; p = 7; }
+  if (li == 5) { n = 50; r = 1; p = 7; }
+  if (li == 6) { n = 42; r = 1; p = 7; }
+  if (li == 7) { n = 49; r = 1; p = 7; }
+  if (li == 8) { n = 40; r = 1; p = 7; }
+  if (li == 9) { n = 38; r = 1; p = 14; }
+  if (li == 10) { n = 9; r = 1; p = 6; }
+}
+
+fun set_all_opacity(op)
+{  l0.SetOpacity(op);
+  l1.SetOpacity(op);
+  l2.SetOpacity(op);
+  l3.SetOpacity(op);
+  l4.SetOpacity(op);
+  l5.SetOpacity(op);
+  l6.SetOpacity(op);
+  l7.SetOpacity(op);
+  l8.SetOpacity(op);
+  l9.SetOpacity(op);
+  l10.SetOpacity(op);
+  mask.SetOpacity(op);
+}
 
 fun refresh_cb()
 {
   tick = tick + 1;
 
-  y1 = y1 + speed * 1.00;
-  y2 = y2 + speed * 1.35;
-  y3 = y3 + speed * 0.85;
-  y4 = y4 + speed * 1.20;
-  y5 = y5 + speed * 1.05;
-  y6 = y6 + speed * 1.50;
-  y7 = y7 + speed * 0.95;
-  y8 = y8 + speed * 1.25;
-
-  if (y1 > screen_h) { y1 = 0 - col_h; }
-  if (y2 > screen_h) { y2 = 0 - col_h; }
-  if (y3 > screen_h) { y3 = 0 - col_h; }
-  if (y4 > screen_h) { y4 = 0 - col_h; }
-  if (y5 > screen_h) { y5 = 0 - col_h; }
-  if (y6 > screen_h) { y6 = 0 - col_h; }
-  if (y7 > screen_h) { y7 = 0 - col_h; }
-  if (y8 > screen_h) { y8 = 0 - col_h; }
-
-  c1.SetY(y1); c2.SetY(y2); c3.SetY(y3); c4.SetY(y4);
-  c5.SetY(y5); c6.SetY(y6); c7.SetY(y7); c8.SetY(y8);
-
-  rain_op = 1;
-  logo_op = 0;
-
-  if (tick > 140)
+  if (phase == 0)
   {
-    rain_op = 1 - (tick - 140) * 0.014;
-    if (rain_op < 0) { rain_op = 0; }
-
-    logo_op = (tick - 140) * 0.022;
-    if (logo_op > 1) { logo_op = 1; }
+    if (li >= 11)
+    {
+      hold = hold + 1;
+      if (hold > 40)
+      {
+        phase = 1;
+        wait = 0;
+        cur.SetOpacity(0);
+      }
+      else
+      {
+        blink = blink + 1;
+        if (blink >= 30) { blink = 0; }
+        if (blink < 15) { cur.SetOpacity(1); } else { cur.SetOpacity(0); }
+      }
+    }
+    else
+    {
+      if (started == 0)
+      {
+        if (wait > 0)
+        {
+          wait = wait - 1;
+        }
+        else
+        {
+          started = 1;
+          ci = 0;
+          per = 0;
+          show_line();
+          set_line_params();
+          mask.SetY(y0 + li * dy);
+          mask.SetX(x0);
+          cur.SetY(y0 + li * dy + 4 * k);
+          cur.SetX(x0);
+          cur.SetOpacity(1);
+        }
+      }
+      else
+      {
+        per = per + 1;
+        if (per >= r)
+        {
+          per = 0;
+          ci = ci + 1;
+          cur.SetX(x0 + ci * cw);
+          mask.SetX(x0 + ci * cw);
+          if (ci >= n)
+          {
+            wait = p;
+            li = li + 1;
+            started = 0;
+          }
+        }
+      }
+    }
   }
 
-  c1.SetOpacity(rain_op); c2.SetOpacity(rain_op);
-  c3.SetOpacity(rain_op); c4.SetOpacity(rain_op);
-  c5.SetOpacity(rain_op); c6.SetOpacity(rain_op);
-  c7.SetOpacity(rain_op); c8.SetOpacity(rain_op);
-
-  logo.SetOpacity(logo_op);
-
-  glitch = glitch + 1;
-  if (glitch >= 16) { glitch = 0; }
-
-  if (tick > 140 && tick < 200)
+  if (phase == 1)
   {
-    gl1.SetOpacity(logo_op);
-    if (glitch < 8) { gl1.SetX(logo_x + 9); } else { gl1.SetX(logo_x - 9); }
-
-    if (glitch < 5) { gl2.SetOpacity(logo_op); } else { gl2.SetOpacity(0); }
-  }
-  else
-  {
-    gl1.SetOpacity(0);
-    gl2.SetOpacity(0);
+    wait = wait + 1;
+    if (wait > 10)
+    {
+      fadeop = fadeop - 0.03;
+      if (fadeop <= 0)
+      {
+        fadeop = 0;
+        phase = 2;
+        burst = 0;
+      }
+      set_all_opacity(fadeop);
+    }
   }
 
-  tag_op = 0;
-  if (tick > 200)
+  if (phase == 2)
   {
-    tag_op = (tick - 200) * 0.025;
-    if (tag_op > 1) { tag_op = 1; }
-  }
-  tag.SetOpacity(tag_op);
+    if (logo_op < 1)
+    {
+      logo_op = logo_op + 0.02;
+      if (logo_op > 1) { logo_op = 1; }
+      logo.SetOpacity(logo_op);
+      track.SetOpacity(logo_op * 0.9);
+      fill.SetOpacity(logo_op);
+    }
 
-  if (tick > 225)
-  {
-    blink = blink + 1;
-    if (blink >= 40) { blink = 0; }
-    if (blink < 20) { cursor.SetOpacity(1); } else { cursor.SetOpacity(0); }
+    # ровное свечение + периодический глитч («двоение») поверх логотипа
+    glow.SetOpacity(logo_op * 0.7);
+
+    burst = burst + 1;
+    if (burst >= 260) { burst = 0; }
+
+    if (burst < 30)
+    {
+      gl1.SetOpacity(logo_op);
+      if (burst < 15) { gl1.SetX(logo_x + 9 * k); } else { gl1.SetX(logo_x - 9 * k); }
+      if (burst < 10) { gl2.SetOpacity(logo_op); } else { gl2.SetOpacity(0); }
+      if (burst < 6) { logo.SetX(logo_x - 4 * k); } else { logo.SetX(logo_x + 2 * k); }
+    }
+    else
+    {
+      gl1.SetOpacity(0);
+      gl2.SetOpacity(0);
+      logo.SetX(logo_x);
+    }
+
+    # полоса сама доезжает до 100% за ~5 с после появления логотипа
+    # (progress_cb только увеличивает prog, назад не откатывает)
+    if (prog < 1)
+    {
+      prog = prog + 0.004;
+      if (prog > 1) { prog = 1; }
+      w = bar_w * prog;
+      if (w < 1) { w = 1; }
+      fill.SetImage(box_on_img.Scale(w, 3 * k));
+    }
+
+    w = bar_w * prog;
+    if (w < 1) { w = 1; }
+    fill.SetImage(box_on_img.Scale(w, 3 * k));
   }
 }
 
 fun progress_cb(duration, progress)
 {
-  w = bar_w * progress;
-  if (w < 1) { w = 1; }
-  fill.SetImage(box_on_img.Scale(w, 3));
+  if (progress > prog) { prog = progress; }
+  if (phase == 2)
+  {
+    w = bar_w * progress;
+    if (w < 1) { w = 1; }
+    fill.SetImage(box_on_img.Scale(w, 3 * k));
+  }
 }
 
 Plymouth.SetRefreshFunction(refresh_cb);

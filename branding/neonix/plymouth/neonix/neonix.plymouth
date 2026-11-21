@@ -1,6 +1,6 @@
 [Plymouth Theme]
-Name=Neonix
-Description=Neonix cyber boot splash
+Name=Neonix Mono
+Description=Neonix mono console boot splash
 ModuleName=script
 
 [script]
